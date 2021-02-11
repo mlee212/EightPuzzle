@@ -17,25 +17,27 @@ public:
 	vector<vector<int>> state;
 	int sz;
 	void print();
-	void copy(int state[3][3]);
 };
 
 int main() {
 	
 	int choice = 0;
 
-	cout << "Welcome to Matthew Lee\'s 8-puzzle solver. \n Type\"1\" to use a default puzzle, or \"2\" to enter your own puzzle.";
+	cout << "Welcome to Matthew Lee\'s 8-puzzle solver. \n Type\"1\" to use a default puzzle, or \"2\" to enter your own puzzle." << endl;
 	cin >> choice;
 
-	vector<vector<int>> deflt = {	{1,2,3},
-									{4,8,0},
-									{7,6,5} };
-
-	cout << "-------------before node creation------------------";
+	vector<vector<int>> deflt {	{1,2,3},
+								{4,8,0},
+								{7,6,5} };
 
 	Node test(deflt, 3);
-	cout << "-------------after node creation------------------";
-	//test.print();
+
+
+	cout << "-------------before node print------------------" << endl;
+
+	test.print();
+
+	cout << "-------------after node print------------------" << endl;
 	
 
 }
@@ -90,13 +92,5 @@ void Node::print() {
 			cout << this->state[i][j] << " ";
 		}
 		cout << endl;
-	}
-}
-
-void Node::copy(int state[3][3]) {
-	for (int i = 0; i < sz; i++) {
-		for (int j = 0; j < sz; j++) {
-			this->state[i][j] = state[i][j];
-		}
 	}
 }
