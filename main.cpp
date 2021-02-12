@@ -3,7 +3,7 @@
 #include <vector>
 using namespace std;
 
-
+//vector<vector<int>> copy(vector<vector<int>> state, vector<vector<int>> copy);
 
 class Node {
 public: 
@@ -44,7 +44,12 @@ int main() {
 
 	cout << "-------------after node print------------------" << endl;
 	
-	
+	cout << "-------------before index print------------------" << endl;
+
+	vector<int> newtest = findInd(test.state, 10);
+	cout << "(" << newtest.at(0) << ", " << newtest.at(1) << ")" << endl;
+
+	cout << "-------------after index print------------------" << endl;
 
 }
 
@@ -92,20 +97,45 @@ Node::Node(Node* prev, Node* ex1, Node* ex2, Node* ex3, Node* ex4, int state[][]
 	sz = size;
 }
 */
+
 void Node::expand(Node head) {
 	vector<int> indmove = findInd(head.state, 0);				// index of "0"
 
 	int posmove = 4;										// possible moves
+	int sz = head.state.size();								// length/width of state. The N if state is N x N size.
+	int x = indmove.at(0);
+	int y = indmove.at(1);
+	vector<vector<int>> tempState;
 
-	if (indmove.at(0) == 0 || indmove.at(0) == indmove.size() - 1) {
+
+	if (x == 0 || x == sz - 1) {
 		posmove--;
 	}
-	if (indmove.at(1) == 0 || indmove.at(1) == indmove.size() - 1) {
+	if (y == 0 || y == sz - 1) {
 		posmove--;
 	}
 
 	if (posmove == 4) {
-		
+		tempState = head.state;
+		tempState[x][y] = tempState[x - 1][y];
+		tempState[x - 1][y] = 0;
+		head.ex1 = new Node(tempState, tempState.size());
+
+		tempState = head.state;
+		tempState[x][y] = tempState[x + 1][y];
+		tempState[x + 1][y] = 0;
+		head.ex2 = new Node(tempState, tempState.size());
+
+		tempState = head.state;
+		tempState[x][y] = tempState[x][y - 1];
+		tempState[x][y - 1] = 0;
+		head.ex3 = new Node(tempState, tempState.size());
+
+		tempState = head.state;
+		tempState[x][y] = tempState[x][y + 1];
+		tempState[x][y + 1] = 0;
+		head.ex4 = new Node(tempState, tempState.size());
+
 	}
 	else if (posmove == 3) {
 
@@ -119,7 +149,7 @@ void Node::expand(Node head) {
 
 }
 
-vector<int> Node::findInd(vector<vector<int>> state, int num) {
+vector<int> findInd(vector<vector<int>> state, int num) {
 	vector<int> index;
 	for (int i = 0; i < state.size(); i++) {
 		for (int j = 0; j < state.size(); j++) {
@@ -128,6 +158,11 @@ vector<int> Node::findInd(vector<vector<int>> state, int num) {
 				index.push_back(j);
 			}
 		}
+	}
+
+	if (index.size() != 2) {							// Error catching
+		index.push_back(-1);
+		index.push_back(-1);
 	}
 	return index;
 }
@@ -140,3 +175,13 @@ void Node::print() {
 		cout << endl;
 	}
 }
+
+/*vector<vector<int>> copy(vector<vector<int>> state, vector<vector<int>> copy) {
+	vector<int> temp;
+	for (int i = 0; i < state.size(); i++) {
+		copy.push_back(temp);
+		for (int j = 0; j < state.size(); j++) {
+			copy.at(i).push_back();
+		}
+	}
+}*/
