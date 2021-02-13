@@ -3,7 +3,7 @@
 #include <vector>
 using namespace std;
 
-//vector<vector<int>> copy(vector<vector<int>> state, vector<vector<int>> copy);
+vector<int> findInd(vector<vector<int>> state, int num);
 
 class Node {
 public: 
@@ -18,9 +18,9 @@ public:
 	Node* ex4;
 	vector<vector<int>> state;
 	int sz;
+
 	void print();
-	vector<int> findInd(vector<vector<int>> state, int num);
-	void expand(Node head);
+	void expand();
 	
 };
 
@@ -28,7 +28,7 @@ int main() {
 	
 	int choice = 0;
 
-	cout << "Welcome to Matthew Lee\'s 8-puzzle solver. \n Type\"1\" to use a default puzzle, or \"2\" to enter your own puzzle." << endl;
+	cout << "Welcome to Matthew Lee\'s 8-puzzle solver. \n Type \"1\" to use a default puzzle, or \"2\" to enter your own puzzle." << endl;
 	cin >> choice;
 
 	vector<vector<int>> deflt {	{1,2,3},
@@ -46,21 +46,37 @@ int main() {
 	
 	cout << "-------------before index print------------------" << endl;
 
-	vector<int> newtest = findInd(test.state, 10);
+	vector<int> newtest = findInd(test.state, 2);
 	cout << "(" << newtest.at(0) << ", " << newtest.at(1) << ")" << endl;
 
 	cout << "-------------after index print------------------" << endl;
 
+	cout << "-------------before test expand-----------------" << endl;
+	test.expand();
+	cout << "-------------after test expand------------------" << endl;
+	cout << endl << "State move up" << endl;
+	test.ex1->print();
+	cout << endl << "State move down" << endl;
+	test.ex2->print();
+	cout << endl << "State move left" << endl;
+	test.ex3->print();
+	//cout << endl << "State move right" << endl;
+	//test.ex4->print();
 }
 
 Node::Node(vector<vector<int>> state, int size) {
-	this->state = state;
 	for (int i = 0; i < sz; i++) {
 		for (int j = 0; j < sz; j++) {
 			cout << this->state[i][j] << " ";
 		}
 		cout << endl;
 	}
+	prev = NULL;
+	ex1 = NULL;
+	ex2 = NULL;
+	ex3 = NULL;
+	ex4 = NULL;
+	this->state = state;
 	sz = size;
 };
 /*
@@ -98,11 +114,11 @@ Node::Node(Node* prev, Node* ex1, Node* ex2, Node* ex3, Node* ex4, int state[][]
 }
 */
 
-void Node::expand(Node head) {
-	vector<int> indmove = findInd(head.state, 0);				// index of "0"
+void Node::expand() {
+	vector<int> indmove = findInd(this->state, 0);				// index of "0"
 
 	int posmove = 4;										// possible moves
-	int sz = head.state.size();								// length/width of state. The N if state is N x N size.
+	int sz = this->state.size();								// length/width of state. The N if state is N x N size.
 	int x = indmove.at(0);
 	int y = indmove.at(1);
 	vector<vector<int>> tempState;
@@ -115,35 +131,37 @@ void Node::expand(Node head) {
 		posmove--;
 	}
 
-	if (posmove == 4) {
-		tempState = head.state;
-		tempState[x][y] = tempState[x - 1][y];
+	if (x - 1 >= 0) {										// check if up is valid
+		tempState = this->state;
+		tempState[x][y] = tempState[x - 1][y];				// up
 		tempState[x - 1][y] = 0;
-		head.ex1 = new Node(tempState, tempState.size());
-
-		tempState = head.state;
-		tempState[x][y] = tempState[x + 1][y];
+		this->ex1 = new Node(tempState, tempState.size());
+		this->ex1->prev = this;
+	}
+	if (x + 1 < sz) {										// check if down is valid
+		tempState = this->state;
+		tempState[x][y] = tempState[x + 1][y];				// down
 		tempState[x + 1][y] = 0;
-		head.ex2 = new Node(tempState, tempState.size());
-
-		tempState = head.state;
-		tempState[x][y] = tempState[x][y - 1];
+		this->ex2 = new Node(tempState, tempState.size());
+		this->ex2->prev = this;
+	}
+	if (y - 1 >= 0) {										// check if left is valid
+		tempState = this->state;
+		tempState[x][y] = tempState[x][y - 1];				// left
 		tempState[x][y - 1] = 0;
-		head.ex3 = new Node(tempState, tempState.size());
-
-		tempState = head.state;
-		tempState[x][y] = tempState[x][y + 1];
+		this->ex3 = new Node(tempState, tempState.size());
+		this->ex3->prev = this;
+	}
+	if (y + 1 < sz) {										// check if right is valid
+		tempState = this->state;
+		tempState[x][y] = tempState[x][y + 1];				// right
 		tempState[x][y + 1] = 0;
-		head.ex4 = new Node(tempState, tempState.size());
-
+		this->ex4 = new Node(tempState, tempState.size());
+		this->ex4->prev = this;
 	}
-	else if (posmove == 3) {
+	
 
-	}
-	else if (posmove == 2) {
-
-	}
-	else if (posmove > 4 || posmove < 2) {
+	if (posmove > 4 || posmove < 2) {
 		cout << "Error: Invalid number of possible moves. Expansion failed." << endl;
 	}
 
@@ -175,13 +193,3 @@ void Node::print() {
 		cout << endl;
 	}
 }
-
-/*vector<vector<int>> copy(vector<vector<int>> state, vector<vector<int>> copy) {
-	vector<int> temp;
-	for (int i = 0; i < state.size(); i++) {
-		copy.push_back(temp);
-		for (int j = 0; j < state.size(); j++) {
-			copy.at(i).push_back();
-		}
-	}
-}*/
