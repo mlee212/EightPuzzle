@@ -19,15 +19,16 @@ public:
 	Node* ex4;
 	vector<vector<int>> state;
 	int sz;
-	int depth;
+	int depth = 0;
 	
 
 	void print();
-	void expand();
+	deque<Node> expand(deque<Node> queue);
 	
 };
 
-vector<Node> queuefxn(Node n, deque<Node> queue);
+vector<vector<int>> goalStateGen(int size);
+deque<Node> queuefxn(deque<Node> queue, int choice);
 Node generalSearch(Node n, int choice);
 
 int main() {
@@ -61,8 +62,11 @@ int main() {
 
 	cout << "-------------after index print------------------" << endl;
 
+	deque<Node> q;
+	q.push_back(test);
+
 	cout << "-------------before test expand-----------------" << endl;
-	test.expand();
+	q = test.expand(q);
 	cout << "-------------after test expand------------------" << endl;
 	cout << endl << "State move up" << endl;
 	test.ex1->print();
@@ -73,6 +77,20 @@ int main() {
 	cout << endl << "State move right" << endl;
 	test.ex4->print();
 
+	cout << "-------------checking queue-----------------" << endl;
+
+	cout << endl << "OG State" << endl;
+	q.at(0).print();
+	cout << endl << "State move up" << endl;
+	q.at(1).print();
+	cout << endl << "State move down" << endl;
+	q.at(2).print();
+	cout << endl << "State move left" << endl;
+	q.at(3).print();
+	cout << endl << "State move right" << endl;
+	q.at(4).print();
+
+	cout << "-------------end of queue checking-----------------" << endl;
 
 	cout << "-------------testing dynamic goal-----------------" << endl;
 
@@ -146,7 +164,7 @@ Node::Node(Node* prev, Node* ex1, Node* ex2, Node* ex3, Node* ex4, int state[][]
 }
 */
 
-void Node::expand() {
+deque<Node> Node::expand(deque<Node> queue) {
 	vector<int> indmove = findInd(this->state, 0);				// index of "0"
 
 	int posmove = 4;										// possible moves
@@ -169,6 +187,7 @@ void Node::expand() {
 		tempState[x - 1][y] = 0;
 		this->ex1 = new Node(tempState, tempState.size());
 		this->ex1->prev = this;
+		queue.push_back(*this->ex1);
 	}
 	if (x + 1 < sz) {										// check if down is valid
 		tempState = this->state;
@@ -176,6 +195,7 @@ void Node::expand() {
 		tempState[x + 1][y] = 0;
 		this->ex2 = new Node(tempState, tempState.size());
 		this->ex2->prev = this;
+		queue.push_back(*this->ex2);
 	}
 	if (y - 1 >= 0) {										// check if left is valid
 		tempState = this->state;
@@ -183,6 +203,7 @@ void Node::expand() {
 		tempState[x][y - 1] = 0;
 		this->ex3 = new Node(tempState, tempState.size());
 		this->ex3->prev = this;
+		queue.push_back(*this->ex3);
 	}
 	if (y + 1 < sz) {										// check if right is valid
 		tempState = this->state;
@@ -190,6 +211,7 @@ void Node::expand() {
 		tempState[x][y + 1] = 0;
 		this->ex4 = new Node(tempState, tempState.size());
 		this->ex4->prev = this;
+		queue.push_back(*this->ex4);
 	}
 	
 
@@ -197,26 +219,34 @@ void Node::expand() {
 		cout << "Error: Invalid number of possible moves. Expansion failed." << endl;
 	}
 
+	return queue;
+}
+
+vector<vector<int>> goalStateGen(int size) {
+	vector<vector<int>> goalState;							
+	vector<int> blank;
+	for (int i = 0; i < size; i++) {
+		goalState.push_back(blank);
+		for (int j = 0; j < size; j++) {
+			goalState.at(i).push_back(j + i * size + 1);
+		}
+	}
+	goalState[size - 1][size - 1] = 0;
+
+	Node goalNode(goalState, size);
+	goalNode.print();
+
+	return goalState;
 }
 
 Node generalSearch(Node n, int choice) {
-	deque<Node> queue;										// max size queue; how many nodes were expanded
+	deque<Node> queue;													// max size queue; how many nodes were expanded
 	queue.push_back(n);
+	int depth = 0;
 
-	vector<vector<int>> goalState;							// Creating a dynamic goal state based on problem state size
-	vector<int> blank;
-	for (int i = 0; i < n.state.size(); i++) {
-		goalState.push_back(blank);
-		for (int j = 0; j < n.state.size(); j++) {
-			goalState.at(i).push_back(j + i * n.state.size() + 1);
-		}
-	}
-	goalState[n.state.size() - 1][n.state.size() - 1] = 0;
-
-	Node goalNode(goalState, n.state.size());
-	goalNode.print();
-
+	vector<vector<int>> goalState = goalStateGen(n.state.size());		// Creating a dynamic goal state based on problem state size
 	vector<vector<int>> errState = { {-1} };
+
 	Node error(errState, 1);
 
 	while (1) {
@@ -227,14 +257,14 @@ Node generalSearch(Node n, int choice) {
 		if (n.state == goalState) {
 			return n;
 		}
-		
+		queue = queuefxn(queue, choice);
 
 	}
 }
 
-deque<Node> queuefxn(Node n, deque<Node> queue, int choice) {
-	deque<Node> temp;
-	return temp;
+deque<Node> queuefxn(deque<Node> queue, int choice) {
+	queue.at(0).expand(queue);
+	return queue;
 }
 
 vector<int> findInd(vector<vector<int>> state, int num) {
