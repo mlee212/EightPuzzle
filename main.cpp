@@ -5,6 +5,7 @@
 using namespace std;
 
 vector<int> findInd(vector<vector<int>> state, int num);
+void removeDupes();
 
 class Node {
 public: 
@@ -42,9 +43,9 @@ int main() {
 	cout << "Enter your choice of algorithm\n\t1. Uniform Cost Search\n\t2. A* with the Misplaced Tile heuristic.\n\t3.  A* with the Manhattan distance heuristic." << endl;
 	cin >> choice;
 
-	vector<vector<int>> deflt {	{1,2,0},
-								{4,5,3},
-								{7,8,6} };
+	vector<vector<int>> deflt {	{1,3,6},
+								{5,0,2},
+								{4,7,8} };
 
 	Node test(deflt, 3);
 
@@ -122,7 +123,7 @@ int main() {
 	vector<vector<int>> randstate2 = {	{3,4,1},
 										{5,2,6},
 										{7,8,0} };
-	vector<vector<int>> randstate3 = { {2,3,4},
+	vector<vector<int>> randstate3 = {  {2,3,4},
 										{5,6,7},
 										{1,8,0} };
 
@@ -304,7 +305,7 @@ vector<vector<int>> goalStateGen(int size) {
 
 	return goalState;
 }
-
+// (1, 3) (3, 2)
 Node generalSearch(Node n, int choice) {
 	deque<Node> queue;													// max size queue; how many nodes were expanded
 	queue.push_back(n);
@@ -321,8 +322,8 @@ Node generalSearch(Node n, int choice) {
 		if (queue.empty()) {
 			return error;
 		}
-		queue.front().print();
-		cout << endl;
+		//queue.front().print();
+		//cout << endl;
 		temp = queue.front();
 		queue.pop_front();
 
@@ -335,7 +336,7 @@ Node generalSearch(Node n, int choice) {
 
 deque<Node> queuefxn(Node n, deque<Node> queue, int choice) {					// proxy function to queue children
 	queue = n.expand(queue);
-
+	/*
 	for (int j = 0; j < queue.size(); j++) {
 		cout << "...." << endl;
 		queue.at(j).print();
@@ -348,7 +349,7 @@ deque<Node> queuefxn(Node n, deque<Node> queue, int choice) {					// proxy funct
 		cout << "====\n";
 		cout << i << ": " << queue.at(i).d << endl;
 		cout << "====\n";
-	}
+	}*/
 
 	return queue;
 }
