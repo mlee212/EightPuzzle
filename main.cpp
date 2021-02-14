@@ -1,6 +1,7 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
+#include <deque>
 using namespace std;
 
 vector<int> findInd(vector<vector<int>> state, int num);
@@ -18,21 +19,30 @@ public:
 	Node* ex4;
 	vector<vector<int>> state;
 	int sz;
+	int depth;
+	
 
 	void print();
 	void expand();
 	
 };
 
+vector<Node> queuefxn(Node n, deque<Node> queue);
+Node generalSearch(Node n, int choice);
+
 int main() {
 	
-	int choice = 0;
+	int inp = 0;
 
-	cout << "Welcome to Matthew Lee\'s 8-puzzle solver. \n Type \"1\" to use a default puzzle, or \"2\" to enter your own puzzle." << endl;
+	cout << "Welcome to Matthew Lee\'s 8-puzzle solver. \nType \"1\" to use a default puzzle, or \"2\" to enter your own puzzle." << endl;
+	cin >> inp;
+	
+	int choice = 0;
+	cout << "Enter your choice of algorithm\n\t1. Uniform Cost Search\n\t2. A* with the Misplaced Tile heuristic.\n\t3.  A* with the Manhattan distance heuristic." << endl;
 	cin >> choice;
 
 	vector<vector<int>> deflt {	{1,2,3},
-								{4,8,0},
+								{4,0,8},
 								{7,6,5} };
 
 	Node test(deflt, 3);
@@ -60,8 +70,30 @@ int main() {
 	test.ex2->print();
 	cout << endl << "State move left" << endl;
 	test.ex3->print();
-	//cout << endl << "State move right" << endl;
-	//test.ex4->print();
+	cout << endl << "State move right" << endl;
+	test.ex4->print();
+
+
+	cout << "-------------testing dynamic goal-----------------" << endl;
+
+	int goalNSize = 0;
+	
+	cout << "Please enter in the size of puzzle" << endl;
+	cin >> goalNSize;
+
+	vector<vector<int>> goalState;							// Creating a dynamic goal state based on problem state size
+	vector<int> blank;
+	for (int i = 0; i < goalNSize; i++) {
+		goalState.push_back(blank);
+		for (int j = 0; j < goalNSize; j++) {
+			goalState.at(i).push_back(j + i * goalNSize + 1);
+		}
+	}
+	goalState[goalNSize - 1][goalNSize - 1] = 0;
+
+	Node goalNode(goalState, goalNSize);
+	goalNode.print();
+	cout << "-------------dynamic goal test finished------------------" << endl;
 }
 
 Node::Node(vector<vector<int>> state, int size) {
@@ -165,6 +197,44 @@ void Node::expand() {
 		cout << "Error: Invalid number of possible moves. Expansion failed." << endl;
 	}
 
+}
+
+Node generalSearch(Node n, int choice) {
+	deque<Node> queue;										// max size queue; how many nodes were expanded
+	queue.push_back(n);
+
+	vector<vector<int>> goalState;							// Creating a dynamic goal state based on problem state size
+	vector<int> blank;
+	for (int i = 0; i < n.state.size(); i++) {
+		goalState.push_back(blank);
+		for (int j = 0; j < n.state.size(); j++) {
+			goalState.at(i).push_back(j + i * n.state.size() + 1);
+		}
+	}
+	goalState[n.state.size() - 1][n.state.size() - 1] = 0;
+
+	Node goalNode(goalState, n.state.size());
+	goalNode.print();
+
+	vector<vector<int>> errState = { {-1} };
+	Node error(errState, 1);
+
+	while (1) {
+		if (!(queue.empty())) {
+			return error;
+		}
+		queue.pop_front();
+		if (n.state == goalState) {
+			return n;
+		}
+		
+
+	}
+}
+
+deque<Node> queuefxn(Node n, deque<Node> queue, int choice) {
+	deque<Node> temp;
+	return temp;
 }
 
 vector<int> findInd(vector<vector<int>> state, int num) {
