@@ -2,10 +2,11 @@
 #include <sstream>
 #include <vector>
 #include <deque>
+#include <map>
 using namespace std;
 
 vector<int> findInd(vector<vector<int>> state, int num);
-void removeDupes();
+//bool isDupe(Node n, map<Node, int> map);
 
 class Node {
 public: 
@@ -24,12 +25,12 @@ public:
 	
 
 	void print();
-	deque<Node> expand(deque<Node> queue);
+	deque<Node> expand(deque<Node> queue, map<vector<vector<int>>, int> &map);
 	
 };
 
 vector<vector<int>> goalStateGen(int size);
-deque<Node> queuefxn(Node n, deque<Node> queue, int choice);
+deque<Node> queuefxn(Node n, deque<Node> queue, int choice, map<vector<vector<int>>, int> &map);
 Node generalSearch(Node n, int choice);
 
 int main() {
@@ -169,13 +170,72 @@ int main() {
 	cout << endl;
 
 	cout << "-------------state comparison test finished---------------------" << endl;
-
+	
 	cout << "-------------testing general search---------------------" << endl;
-
+	
 	Node sol = generalSearch(test, choice);
 	sol.print();
 	cout << "depth: " << sol.d << endl;
 	cout << "-------------general search test finished---------------------" << endl;
+	
+	
+	cout << "----------------Testing maps---------------------" << endl;
+
+	map<vector<vector<int>>, int> m;
+	if (m.find(deflt) == m.end()) {
+		cout << "not found" << endl;
+		m.insert(pair<vector<vector<int>>, int>(deflt, 1));
+	}
+	else {
+		cout << "value: " << m.find(deflt)->second << endl;
+	}
+	if (m.find(randstate1) == m.end()) {
+		cout << "not found" << endl;
+		m.insert(pair<vector<vector<int>>, int>(randstate1, 1));
+	}
+	else {
+		cout << "value: " << m.find(randstate1)->second << endl;
+	}
+	if (m.find(randstate2) == m.end()) {
+		cout << "not found" << endl;
+		m.insert(pair<vector<vector<int>>, int>(randstate2, 1));
+	}
+	else {
+		cout << "value: " << m.find(randstate2)->second << endl;
+	}
+	if (m.find(deflt) == m.end()) {
+		cout << "not found" << endl;
+		m.insert(pair<vector<vector<int>>, int>(deflt, 1));
+	}
+	else {
+		cout << "value: " << m.find(deflt)->second << endl;
+	}
+	if (m.find(randstate1) == m.end()) {
+		cout << "not found" << endl;
+		m.insert(pair<vector<vector<int>>, int>(randstate1, 1));
+	}
+	else {
+		cout << "value: " << m.find(randstate1)->second << endl;
+	}
+	if (m.find(randstate2) == m.end()) {
+		cout << "not found" << endl;
+		m.insert(pair<vector<vector<int>>, int>(randstate2, 1));
+	}
+	else {
+		cout << "value: " << m.find(randstate2)->second << endl;
+	}
+
+	Node* yup = new Node({ {1} }, 1);
+	for (auto it = m.cbegin(); it != m.cend(); ++it) {
+		yup = new Node(it->first, 3);
+		yup->print();
+		cout << endl;
+	}
+
+
+	cout << "-------------Finished testing maps---------------------" << endl;
+
+
 
 }
 
@@ -195,6 +255,7 @@ Node::Node(vector<vector<int>> state, int size) {
 	sz = size;
 	d = 0;
 };
+
 /*
 Node::Node(Node* prev, Node* ex1, Node* ex2, int state[][], int size) {
 	this->prev = prev;
@@ -230,7 +291,7 @@ Node::Node(Node* prev, Node* ex1, Node* ex2, Node* ex3, Node* ex4, int state[][]
 }
 */
 
-deque<Node> Node::expand(deque<Node> queue) {
+deque<Node> Node::expand(deque<Node> queue, map<vector<vector<int>>, int> &map) {
 	vector<int> indmove = findInd(this->state, 0);			// finds the blank tile aka index of "0"
 
 	int posmove = 4;										// possible moves
@@ -238,6 +299,7 @@ deque<Node> Node::expand(deque<Node> queue) {
 	int x = indmove.at(0);
 	int y = indmove.at(1);
 	vector<vector<int>> tempState;
+	
 
 	if (x == 0 || x == sz - 1) {
 		posmove--;
@@ -253,7 +315,18 @@ deque<Node> Node::expand(deque<Node> queue) {
 		this->ex1 = new Node(tempState, tempState.size());
 		this->ex1->prev = this;
 		this->ex1->d = this->d + 1;
-		queue.push_back(*this->ex1);
+
+		if (map.find(tempState) == map.end()) {				// not found in dictionary
+//			cout << "up: size before: " << map.size() << endl;
+			map.insert(pair<vector<vector<int>>, int>(tempState, 1));
+//			cout << "up: size after: " << map.size() << endl;
+			queue.push_back(*this->ex1);
+//			cout << "up: new state found!" << endl;
+
+		}
+		else {
+//			cout << "up: this is already inside the dict" << endl;
+		}
 	}
 	if (x + 1 < sz) {										// check if down is valid
 		tempState = this->state;
@@ -262,7 +335,17 @@ deque<Node> Node::expand(deque<Node> queue) {
 		this->ex2 = new Node(tempState, tempState.size());
 		this->ex2->prev = this;
 		this->ex2->d = this->d + 1;
-		queue.push_back(*this->ex2);
+
+		if (map.find(tempState) == map.end()) {				// not found in dictionary
+//			cout << "down: size before: " << map.size() << endl;
+			map.insert(pair<vector<vector<int>>, int>(tempState, 1));
+//			cout << "down: size after: " << map.size() << endl;
+			queue.push_back(*this->ex2);
+//			cout << "down: new state found!" << endl;
+		}
+		else {
+//			cout << "down: this is already inside the dict" << endl;
+		}
 	}
 	if (y - 1 >= 0) {										// check if left is valid
 		tempState = this->state;
@@ -271,7 +354,17 @@ deque<Node> Node::expand(deque<Node> queue) {
 		this->ex3 = new Node(tempState, tempState.size());
 		this->ex3->prev = this;
 		this->ex3->d = this->d + 1;
-		queue.push_back(*this->ex3);
+
+		if (map.find(tempState) == map.end()) {				// not found in dictionary
+//			cout << "left: size before: " << map.size() << endl; 
+			map.insert(pair<vector<vector<int>>, int>(tempState, 1));
+//			cout << "left: size after: " << map.size() << endl;
+			queue.push_back(*this->ex3);
+//			cout << "left: new state found!" << endl;
+		}
+		else {
+//			cout << "left: this is already inside the dict" << endl;
+		}
 	}
 	if (y + 1 < sz) {										// check if right is valid
 		tempState = this->state;
@@ -280,7 +373,17 @@ deque<Node> Node::expand(deque<Node> queue) {
 		this->ex4 = new Node(tempState, tempState.size());
 		this->ex4->prev = this;
 		this->ex4->d = this->d + 1;
-		queue.push_back(*this->ex4);
+
+		if (map.find(tempState) == map.end()) {				// not found in dictionary
+//			cout << "right: size before: " << map.size() << endl; 
+			map.insert(pair<vector<vector<int>>, int>(tempState, 1));
+//			cout << "right: size after: " << map.size() << endl;
+			queue.push_back(*this->ex4);
+//			cout << "right: new state found!" << endl;
+		}
+		else {
+//			cout << "right: this is already inside the dict" << endl;
+		}
 	}
 
 	if (posmove > 4 || posmove < 2) {
@@ -307,6 +410,7 @@ vector<vector<int>> goalStateGen(int size) {
 }
 // (1, 3) (3, 2)
 Node generalSearch(Node n, int choice) {
+	map<vector<vector<int>>, int> map;
 	deque<Node> queue;													// max size queue; how many nodes were expanded
 	queue.push_back(n);
 	int depth = 0;
@@ -318,41 +422,64 @@ Node generalSearch(Node n, int choice) {
 	Node temp = n;
 	Node error(errState, 1);
 
+	map.insert(pair<vector<vector<int>>,int>(temp.state, temp.d));
+
 	while (1) {
 		if (queue.empty()) {
 			return error;
 		}
-		//queue.front().print();
-		//cout << endl;
+//		queue.front().print();
+//		cout << endl;
 		temp = queue.front();
 		queue.pop_front();
 
 		if (temp.state == goalState) {
 			return temp;
 		}
-		queue = queuefxn(temp, queue, choice);
+		queue = queuefxn(temp, queue, choice, map);
+
 	}
 }
 
-deque<Node> queuefxn(Node n, deque<Node> queue, int choice) {					// proxy function to queue children
-	queue = n.expand(queue);
-	/*
-	for (int j = 0; j < queue.size(); j++) {
+deque<Node> queuefxn(Node n, deque<Node> queue, int choice, map<vector<vector<int>> , int> &map) {			// proxy function to queue children
+	queue = n.expand(queue, map);
+	
+	
+	/*for (int j = 0; j < queue.size(); j++) {
 		cout << "...." << endl;
 		queue.at(j).print();
 		cout << endl;
 		queue.at(j).prev->print();
 		cout << "...." << endl;
 	}
-
+	
 	for (int i = 0; i < queue.size(); i++) {
 		cout << "====\n";
-		cout << i << ": " << queue.at(i).d << endl;
+		cout << i << ": " << endl;
+		queue.at(i).print();
+		cout << endl;
 		cout << "====\n";
+	}
+	/*Node* temp = new Node({ {1} }, 1);
+	for (auto it = map.cbegin(); it != map.cend(); ++it) {
+		temp = new Node(it->first, 3);
+		temp->print();
+		cout << endl;
+	}
+	
+	cout << "0000000000000\n0000000000000\n0000000000000\n" << endl;
+	for (int l = 0; l < queue.size(); l++) {
+		cout << "`````````" << endl;
+		queue.at(l).print();
+		cout << "`````````" << endl;
 	}*/
 
 	return queue;
 }
+
+//bool isDupe(Node n, map<int, Node> map) {
+//	map.find(n);
+//}
 
 vector<int> findInd(vector<vector<int>> state, int num) {
 	vector<int> index;
