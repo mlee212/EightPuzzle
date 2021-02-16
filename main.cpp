@@ -3,13 +3,18 @@
 #include <vector>
 #include <deque>
 #include <map>
+#include <algorithm>
 using namespace std;
 
 vector<int> findInd(vector<vector<int>> state, int num);
 //bool isDupe(Node n, map<Node, int> map);
+int misHeur(vector<vector<int>> state, vector<vector<int>> goal, int depth);
+int manHeur(vector<vector<int>> state, vector<vector<int>> goal, int depth);
+
 
 class Node {
 public: 
+	Node();
 	Node(vector<vector<int>> state, int size);
 	//Node(Node* prev, Node* ex1, Node* ex2, int state[][], int size);
 	//Node(Node* prev, Node* ex1, Node* ex2, Node* ex3, int  state[][], int size);
@@ -22,6 +27,7 @@ public:
 	vector<vector<int>> state;
 	int sz;
 	int d;											// depth
+	int cost;										// cost of node g(n) + h(n)
 	
 
 	void print();
@@ -32,6 +38,16 @@ public:
 vector<vector<int>> goalStateGen(int size);
 deque<Node> queuefxn(Node n, deque<Node> queue, int choice, map<vector<vector<int>>, int> &map);
 Node generalSearch(Node n, int choice);
+deque<Node> sortN(deque<Node> &queue);
+void assignCost(deque<Node> &queue, int choice, vector<vector<int>> goal);
+bool comparator(const Node& lhs, const Node& rhs) {
+	if (lhs.cost == rhs.cost) {
+		return lhs.d < rhs.d;
+	}
+
+	return lhs.cost < rhs.cost;
+}
+
 
 int main() {
 	
@@ -41,12 +57,12 @@ int main() {
 	cin >> inp;
 	
 	int choice = 0;
-	cout << "Enter your choice of algorithm\n\t1. Uniform Cost Search\n\t2. A* with the Misplaced Tile heuristic.\n\t3.  A* with the Manhattan distance heuristic." << endl;
+	cout << "Enter your choice of algorithm\n\t1. Uniform Cost Search\n\t2. A* with the Misplaced Tile heuristic.\n\t3. A* with the Manhattan distance heuristic." << endl;
 	cin >> choice;
 
-	vector<vector<int>> deflt {	{1,3,6},
-								{5,0,2},
-								{4,7,8} };
+	vector<vector<int>> deflt {	{7,1,2},
+								{4,8,5},
+								{6,3,0} };
 
 	Node test(deflt, 3);
 
@@ -235,8 +251,29 @@ int main() {
 
 	cout << "-------------Finished testing maps---------------------" << endl;
 
+	cout << "-------------Testing Heuristics---------------------" << endl;
 
+	int misheurcost = 0;
+	int manheurcost = 0;
+	misheurcost = misHeur(test.state, goalNode.state, test.d);
+	manheurcost = manHeur(test.state, goalNode.state, test.d);
 
+	cout << "misHeur cost: " << misheurcost << endl;
+	cout << "manHeur cost: " << manheurcost << endl;
+
+	cout << "-------------Finished Heuristic test---------------------" << endl;
+
+}
+
+Node::Node() {
+	prev = NULL;
+	ex1 = NULL;
+	ex2 = NULL;
+	ex3 = NULL;
+	ex4 = NULL;
+	this->state = { {} };
+	sz = 0;
+	d = 0;
 }
 
 Node::Node(vector<vector<int>> state, int size) {
@@ -300,7 +337,6 @@ deque<Node> Node::expand(deque<Node> queue, map<vector<vector<int>>, int> &map) 
 	int y = indmove.at(1);
 	vector<vector<int>> tempState;
 	
-
 	if (x == 0 || x == sz - 1) {
 		posmove--;
 	}
@@ -437,13 +473,16 @@ Node generalSearch(Node n, int choice) {
 			return temp;
 		}
 		queue = queuefxn(temp, queue, choice, map);
-
+		assignCost(queue, choice, goalState);
+		queue = sortN(queue);
+		for (int j = 0; j < queue.size(); j++) {
+			cout << j << ": " << queue.at(j).cost << endl;
+		}
 	}
 }
 
 deque<Node> queuefxn(Node n, deque<Node> queue, int choice, map<vector<vector<int>> , int> &map) {			// proxy function to queue children
 	queue = n.expand(queue, map);
-	
 	
 	/*for (int j = 0; j < queue.size(); j++) {
 		cout << "...." << endl;
@@ -497,6 +536,69 @@ vector<int> findInd(vector<vector<int>> state, int num) {
 		index.push_back(-1);
 	}
 	return index;
+}
+
+int misHeur(vector<vector<int>> state, vector<vector<int>> goal, int depth) {
+	int sum = 0;
+
+	for (int i = 0; i < state.size(); i++) {
+		for (int j = 0; j < state.size(); j++) {
+			if (state[i][j] != 0) {
+				if (state[i][j] != goal[i][j]) {
+//					cout << "element at (" << i << ", " << j << "): " << state[i][j] << endl;
+					sum++;
+				}
+			}
+		}
+	}
+	sum += depth;
+
+	return sum;
+}
+
+int manHeur(vector<vector<int>> state, vector<vector<int>> goal, int depth) {
+	int sum = 0;
+	vector<int> ind1;
+	vector<int> ind2;
+
+	for (int i = 0; i < state.size(); i++) {
+		for (int j = 0; j < state.size(); j++) {
+			if (state[i][j] != 0) {
+//				cout << "element state at (" << i << ", " << j << "): " << state[i][j] << endl;
+				ind1 = findInd(state, goal[i][j]);
+//				cout << "element index at (" << ind1.at(0) << ", " << ind1.at(1) << "): " << state[i][j] << endl;
+
+				sum = sum + abs(ind1.at(0) - i);
+				sum = sum + abs(ind1.at(1) - j);
+			}
+		}
+	}
+	sum += depth;
+
+	return sum;
+}
+
+void assignCost(deque<Node> &queue, int choice, vector<vector<int>> goal) {
+	if (choice == 2) {
+		for (int i = 0; i < queue.size(); i++) {
+			queue.at(i).cost = misHeur(queue.at(i).state, goal, queue.at(i).d);
+		}
+	}
+	else if (choice == 3) {
+		for (int i = 0; i < queue.size(); i++) {
+			queue.at(i).cost = manHeur(queue.at(i).state, goal, queue.at(i).d);
+		}
+	}
+}
+
+deque<Node> sortN(deque<Node> &queue) {
+	int minInd = 0;
+	vector<vector<int>> blank;
+	Node temp(blank, blank.size());
+	
+	sort(queue.begin(), queue.end(), &comparator);
+
+	return queue;
 }
 
 void Node::print() {
