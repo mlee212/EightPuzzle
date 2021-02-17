@@ -4,13 +4,32 @@
 #include <deque>
 #include <map>
 #include <algorithm>
+#include <stdio.h>
+#include <windows.h>
+
 using namespace std;
+
+int nodesExpanded = 0;
 
 vector<int> findInd(vector<vector<int>> state, int num);
 //bool isDupe(Node n, map<Node, int> map);
 int misHeur(vector<vector<int>> state, vector<vector<int>> goal, int depth);
 int manHeur(vector<vector<int>> state, vector<vector<int>> goal, int depth);
 
+double get_cpu_time() {
+	FILETIME a, b, c, d;
+	if (GetProcessTimes(GetCurrentProcess(), &a, &b, &c, &d) != 0) {
+		//  Returns total user time.
+		//  Can be tweaked to include kernel times as well.
+		return
+			(double)(d.dwLowDateTime |
+				((unsigned long long)d.dwHighDateTime << 32)) * 0.0000001;
+	}
+	else {
+		//  Handle error
+		return 0;
+	}
+}
 
 class Node {
 public: 
@@ -31,15 +50,17 @@ public:
 	
 
 	void print();
-	deque<Node> expand(deque<Node> queue, map<vector<vector<int>>, int> &map);
+	void expand(Node& n, map<vector<vector<int>>, int> &map);
 	
 };
 
+deque<Node> queue;
+
 vector<vector<int>> goalStateGen(int size);
-deque<Node> queuefxn(Node n, deque<Node> queue, int choice, map<vector<vector<int>>, int> &map);
-Node generalSearch(Node n, int choice);
-deque<Node> sortN(deque<Node> &queue);
-void assignCost(deque<Node> &queue, int choice, vector<vector<int>> goal);
+void queuefxn(Node &n, int choice, map<vector<vector<int>>, int> &map);
+Node generalSearch(Node &n, int choice);
+void sortN();
+void assignCost(int choice, vector<vector<int>> goal);
 bool comparator(const Node& lhs, const Node& rhs) {
 	if (lhs.cost == rhs.cost) {
 		return lhs.d < rhs.d;
@@ -189,9 +210,24 @@ int main() {
 	
 	cout << "-------------testing general search---------------------" << endl;
 	
+
+	double begintimer = get_cpu_time();
+
+	
+	
 	Node sol = generalSearch(test, choice);
 	sol.print();
 	cout << "depth: " << sol.d << endl;
+
+
+	double endtimer = get_cpu_time();
+	double elapsedtimer = (endtimer - begintimer);
+
+	cout << "begin: " << begintimer << endl;
+	cout << "end: " << endtimer << endl;
+
+	printf("Time measured: %3f seconds.\n", elapsedtimer);
+
 	cout << "-------------general search test finished---------------------" << endl;
 	
 	
@@ -251,7 +287,7 @@ int main() {
 
 	cout << "-------------Finished testing maps---------------------" << endl;
 
-	cout << "-------------Testing Heuristics---------------------" << endl;
+	/*cout << "-------------Testing Heuristics---------------------" << endl;
 
 	int misheurcost = 0;
 	int manheurcost = 0;
@@ -261,7 +297,34 @@ int main() {
 	cout << "misHeur cost: " << misheurcost << endl;
 	cout << "manHeur cost: " << manheurcost << endl;
 
-	cout << "-------------Finished Heuristic test---------------------" << endl;
+	cout << "-------------Finished Heuristic test---------------------" << endl;*/
+	cout << "-------------Print solution steps---------------------" << endl;
+	
+	Node waffle = sol;
+	
+	sol.print();
+	cout << "size of head: " << sol.prev->state.size() << endl;
+	cout << "depth: " << sol.d << endl;
+	cout << "depth of head: " << sol.prev->d << endl;
+
+	/*
+	while (waffle.prev != NULL) {
+		waffle.print();
+		waffle = *waffle.prev;
+	}
+	*/
+	cout << "-------------Finished printing---------------------" << endl;
+
+	cout << "Nodes Expanded: " << nodesExpanded << endl;
+
+	//cout << "test node state: " << test.ex1->d;
+
+	Node* asdf = &test;
+	Node qwer(randstate3, randstate3.size());
+	asdf->ex1 = &q.front();
+	asdf->print();
+	cout << endl;
+	asdf->ex1->print();
 
 }
 
@@ -277,12 +340,6 @@ Node::Node() {
 }
 
 Node::Node(vector<vector<int>> state, int size) {
-	for (int i = 0; i < sz; i++) {
-		for (int j = 0; j < sz; j++) {
-			cout << this->state[i][j] << " ";
-		}
-		cout << endl;
-	}
 	prev = NULL;
 	ex1 = NULL;
 	ex2 = NULL;
@@ -328,7 +385,7 @@ Node::Node(Node* prev, Node* ex1, Node* ex2, Node* ex3, Node* ex4, int state[][]
 }
 */
 
-deque<Node> Node::expand(deque<Node> queue, map<vector<vector<int>>, int> &map) {
+void Node::expand(Node &n, map<vector<vector<int>>, int> &map) {
 	vector<int> indmove = findInd(this->state, 0);			// finds the blank tile aka index of "0"
 
 	int posmove = 4;										// possible moves
@@ -348,9 +405,9 @@ deque<Node> Node::expand(deque<Node> queue, map<vector<vector<int>>, int> &map) 
 		tempState = this->state;
 		tempState[x][y] = tempState[x - 1][y];				// up
 		tempState[x - 1][y] = 0;
-		this->ex1 = new Node(tempState, tempState.size());
-		this->ex1->prev = this;
-		this->ex1->d = this->d + 1;
+		n.ex1 = new Node(tempState, tempState.size());
+		n.ex1->prev = &n;																				// SOLVE THIS: this->ex1->prev is being assigned to garbage value
+		n.ex1->d = this->d + 1;
 
 		if (map.find(tempState) == map.end()) {				// not found in dictionary
 //			cout << "up: size before: " << map.size() << endl;
@@ -358,7 +415,7 @@ deque<Node> Node::expand(deque<Node> queue, map<vector<vector<int>>, int> &map) 
 //			cout << "up: size after: " << map.size() << endl;
 			queue.push_back(*this->ex1);
 //			cout << "up: new state found!" << endl;
-
+			nodesExpanded++;
 		}
 		else {
 //			cout << "up: this is already inside the dict" << endl;
@@ -369,7 +426,7 @@ deque<Node> Node::expand(deque<Node> queue, map<vector<vector<int>>, int> &map) 
 		tempState[x][y] = tempState[x + 1][y];				// down
 		tempState[x + 1][y] = 0;
 		this->ex2 = new Node(tempState, tempState.size());
-		this->ex2->prev = this;
+		this->ex2->prev = &n;
 		this->ex2->d = this->d + 1;
 
 		if (map.find(tempState) == map.end()) {				// not found in dictionary
@@ -378,6 +435,7 @@ deque<Node> Node::expand(deque<Node> queue, map<vector<vector<int>>, int> &map) 
 //			cout << "down: size after: " << map.size() << endl;
 			queue.push_back(*this->ex2);
 //			cout << "down: new state found!" << endl;
+			nodesExpanded++;
 		}
 		else {
 //			cout << "down: this is already inside the dict" << endl;
@@ -388,7 +446,7 @@ deque<Node> Node::expand(deque<Node> queue, map<vector<vector<int>>, int> &map) 
 		tempState[x][y] = tempState[x][y - 1];				// left
 		tempState[x][y - 1] = 0;
 		this->ex3 = new Node(tempState, tempState.size());
-		this->ex3->prev = this;
+		this->ex3->prev = &n;
 		this->ex3->d = this->d + 1;
 
 		if (map.find(tempState) == map.end()) {				// not found in dictionary
@@ -397,6 +455,7 @@ deque<Node> Node::expand(deque<Node> queue, map<vector<vector<int>>, int> &map) 
 //			cout << "left: size after: " << map.size() << endl;
 			queue.push_back(*this->ex3);
 //			cout << "left: new state found!" << endl;
+			nodesExpanded++;
 		}
 		else {
 //			cout << "left: this is already inside the dict" << endl;
@@ -407,7 +466,7 @@ deque<Node> Node::expand(deque<Node> queue, map<vector<vector<int>>, int> &map) 
 		tempState[x][y] = tempState[x][y + 1];				// right
 		tempState[x][y + 1] = 0;
 		this->ex4 = new Node(tempState, tempState.size());
-		this->ex4->prev = this;
+		this->ex4->prev = &n;
 		this->ex4->d = this->d + 1;
 
 		if (map.find(tempState) == map.end()) {				// not found in dictionary
@@ -416,6 +475,7 @@ deque<Node> Node::expand(deque<Node> queue, map<vector<vector<int>>, int> &map) 
 //			cout << "right: size after: " << map.size() << endl;
 			queue.push_back(*this->ex4);
 //			cout << "right: new state found!" << endl;
+			nodesExpanded++;
 		}
 		else {
 //			cout << "right: this is already inside the dict" << endl;
@@ -425,7 +485,7 @@ deque<Node> Node::expand(deque<Node> queue, map<vector<vector<int>>, int> &map) 
 	if (posmove > 4 || posmove < 2) {
 		cout << "Error: Invalid number of possible moves. Expansion failed." << endl;
 	}
-	return queue;
+	return;
 }
 
 vector<vector<int>> goalStateGen(int size) {
@@ -445,9 +505,9 @@ vector<vector<int>> goalStateGen(int size) {
 	return goalState;
 }
 // (1, 3) (3, 2)
-Node generalSearch(Node n, int choice) {
+Node generalSearch(Node &n, int choice) {
 	map<vector<vector<int>>, int> map;
-	deque<Node> queue;													// max size queue; how many nodes were expanded
+																		// max size queue; how many nodes were expanded
 	queue.push_back(n);
 	int depth = 0;
 
@@ -468,21 +528,44 @@ Node generalSearch(Node n, int choice) {
 //		cout << endl;
 		temp = queue.front();
 		queue.pop_front();
-
+		cout << temp.cost - temp.d << " " << temp.d << endl;
 		if (temp.state == goalState) {
+			
 			return temp;
 		}
-		queue = queuefxn(temp, queue, choice, map);
-		assignCost(queue, choice, goalState);
-		queue = sortN(queue);
+		queuefxn(temp, choice, map);
+		assignCost(choice, goalState);
+		sortN();
+		/*
+		cout << "head node: " << endl;
+		n.print();
+		if (n.ex1 != NULL) {
+			cout << "child ex1 node: " << endl;
+			n.ex1->print();
+		}
+		if (n.ex2 != NULL) {
+			cout << "child ex2 node: " << endl;
+			n.ex2->print();
+		}
+		if (n.ex3 != NULL) {
+			cout << "child ex3 node: " << endl;
+			n.ex3->print();
+		}
+		if (n.ex4 != NULL) {
+			cout << "child ex4 node: " << endl;
+			n.ex4->print();
+		}
+		
 		for (int j = 0; j < queue.size(); j++) {
 			cout << j << ": " << queue.at(j).cost << endl;
-		}
+		}*/
+
+
 	}
 }
 
-deque<Node> queuefxn(Node n, deque<Node> queue, int choice, map<vector<vector<int>> , int> &map) {			// proxy function to queue children
-	queue = n.expand(queue, map);
+void queuefxn(Node &n, int choice, map<vector<vector<int>> , int> &map) {			// proxy function to queue children
+	n.expand(n, map);
 	
 	/*for (int j = 0; j < queue.size(); j++) {
 		cout << "...." << endl;
@@ -513,7 +596,9 @@ deque<Node> queuefxn(Node n, deque<Node> queue, int choice, map<vector<vector<in
 		cout << "`````````" << endl;
 	}*/
 
-	return queue;
+	
+
+	return;
 }
 
 //bool isDupe(Node n, map<int, Node> map) {
@@ -561,24 +646,39 @@ int manHeur(vector<vector<int>> state, vector<vector<int>> goal, int depth) {
 	vector<int> ind1;
 	vector<int> ind2;
 
-	for (int i = 0; i < state.size(); i++) {
-		for (int j = 0; j < state.size(); j++) {
-			if (state[i][j] != 0) {
-//				cout << "element state at (" << i << ", " << j << "): " << state[i][j] << endl;
-				ind1 = findInd(state, goal[i][j]);
-//				cout << "element index at (" << ind1.at(0) << ", " << ind1.at(1) << "): " << state[i][j] << endl;
+	int r = 0;
+	int c = 0;
+	int r1 = 0;
+	int c1 = 0;
 
-				sum = sum + abs(ind1.at(0) - i);
-				sum = sum + abs(ind1.at(1) - j);
+	for (unsigned k = 1; k < 9; k++) {
+		for (int i = 0; i < state.size(); i++) {
+			for (int j = 0; j < state.size(); j++) {
+				if (goal[i][j] == k) {
+					//				cout << "element state at (" << i << ", " << j << "): " << state[i][j] << endl;
+//					ind1 = findInd(state, goal[i][j]);
+					//				cout << "element index at (" << ind1.at(0) << ", " << ind1.at(1) << "): " << state[i][j] << endl;
+
+//					sum = sum + abs(ind1.at(0) - i);
+//					sum = sum + abs(ind1.at(1) - j);
+					r1 = i;
+					c1 = j;
+				}
+				if (state[i][j] == k) {
+					r = i;
+					c = j;
+				}
 			}
 		}
+		sum += abs(r1 - r) + abs(c1 - c);
 	}
+	
 	sum += depth;
 
 	return sum;
 }
 
-void assignCost(deque<Node> &queue, int choice, vector<vector<int>> goal) {
+void assignCost(int choice, vector<vector<int>> goal) {
 	if (choice == 2) {
 		for (int i = 0; i < queue.size(); i++) {
 			queue.at(i).cost = misHeur(queue.at(i).state, goal, queue.at(i).d);
@@ -591,14 +691,14 @@ void assignCost(deque<Node> &queue, int choice, vector<vector<int>> goal) {
 	}
 }
 
-deque<Node> sortN(deque<Node> &queue) {
+void sortN() {
 	int minInd = 0;
 	vector<vector<int>> blank;
 	Node temp(blank, blank.size());
 	
 	sort(queue.begin(), queue.end(), &comparator);
 
-	return queue;
+	return;
 }
 
 void Node::print() {
