@@ -10,6 +10,7 @@
 using namespace std;
 
 int nodesExpanded = 0;
+int maxQSize = 0;
 
 vector<int> findInd(vector<vector<int>> state, int num);
 //bool isDupe(Node n, map<Node, int> map);
@@ -56,6 +57,7 @@ public:
 
 deque<Node> queue;
 
+Node customInp();
 vector<vector<int>> goalStateGen(int size);
 void queuefxn(Node &n, int choice, map<vector<vector<int>>, int> &map);
 Node generalSearch(Node &n, int choice);
@@ -77,15 +79,25 @@ int main() {
 	cout << "Welcome to Matthew Lee\'s 8-puzzle solver. \nType \"1\" to use a default puzzle, or \"2\" to enter your own puzzle." << endl;
 	cin >> inp;
 	
+	Node test;
+	vector<vector<int>> deflt{  {0,7,2},
+								{4,6,1},
+								{3,5,8} };
+
+	if (inp == 2) {
+		test = customInp();
+	}
+	else {
+		test.state = deflt;
+	}
+
+
 	int choice = 0;
 	cout << "Enter your choice of algorithm\n\t1. Uniform Cost Search\n\t2. A* with the Misplaced Tile heuristic.\n\t3. A* with the Manhattan distance heuristic." << endl;
 	cin >> choice;
 
-	vector<vector<int>> deflt {	{7,1,2},
-								{4,8,5},
-								{6,3,0} };
+	
 
-	Node test(deflt, 3);
 
 
 	cout << "-------------before node print------------------" << endl;
@@ -298,7 +310,7 @@ int main() {
 	cout << "manHeur cost: " << manheurcost << endl;
 
 	cout << "-------------Finished Heuristic test---------------------" << endl;*/
-	cout << "-------------Print solution steps---------------------" << endl;
+	/*cout << "-------------Print solution steps---------------------" << endl;
 	
 	Node waffle = sol;
 	
@@ -313,10 +325,11 @@ int main() {
 		waffle = *waffle.prev;
 	}
 	*/
-	cout << "-------------Finished printing---------------------" << endl;
+	//cout << "-------------Finished printing---------------------" << endl;
 
+	printf("Time measured: %3f seconds.\n", elapsedtimer);
 	cout << "Nodes Expanded: " << nodesExpanded << endl;
-
+	cout << "Max Queue Size: " << maxQSize << endl;
 	//cout << "test node state: " << test.ex1->d;
 
 	Node* asdf = &test;
@@ -325,6 +338,10 @@ int main() {
 	asdf->print();
 	cout << endl;
 	asdf->ex1->print();
+
+
+
+
 
 }
 
@@ -384,6 +401,29 @@ Node::Node(Node* prev, Node* ex1, Node* ex2, Node* ex3, Node* ex4, int state[][]
 	sz = size;
 }
 */
+
+Node customInp() {
+	string str;
+	vector<int> blank;
+	vector<vector<int>> inpState;
+	string temp;
+	cin.ignore();
+	cout << "Please enter in tiles in rows separated by spaces or tabs. (Ex: \"a b c\" or \t\"a\tb\tc\")" << endl;
+
+	for (int i = 0; i < 3; i++) {
+		cout << "Row " << i + 1 << ": ";
+		getline(cin, str);
+		cout << endl;
+		stringstream ss(str);
+		inpState.push_back(blank);
+		for (int j = 0; j < 3; j++) {
+			ss >> temp;
+//			cout << " temp: " << temp << endl;
+			inpState.at(i).push_back(stoi(temp));
+		}
+	}
+	return Node(inpState, 3);
+}
 
 void Node::expand(Node &n, map<vector<vector<int>>, int> &map) {
 	vector<int> indmove = findInd(this->state, 0);			// finds the blank tile aka index of "0"
@@ -596,6 +636,10 @@ void queuefxn(Node &n, int choice, map<vector<vector<int>> , int> &map) {			// p
 		cout << "`````````" << endl;
 	}*/
 
+	if (maxQSize < queue.size()) {
+		maxQSize = queue.size();
+	}
+	
 	
 
 	return;
