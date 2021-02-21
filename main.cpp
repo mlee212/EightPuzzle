@@ -13,10 +13,10 @@ int nodesExpanded = 0;
 int maxQSize = 0;
 
 vector<int> findInd(vector<vector<int>> state, int num);
-//bool isDupe(Node n, map<Node, int> map);
 int misHeur(vector<vector<int>> state, vector<vector<int>> goal, int depth);
 int manHeur(vector<vector<int>> state, vector<vector<int>> goal, int depth);
 
+// ----- UNORIGINAL CODE USED TO TRACK CPUTIME FROM: https://levelup.gitconnected.com/8-ways-to-measure-execution-time-in-c-c-48634458d0f9
 double get_cpu_time() {
 	FILETIME a, b, c, d;
 	if (GetProcessTimes(GetCurrentProcess(), &a, &b, &c, &d) != 0) {
@@ -31,14 +31,12 @@ double get_cpu_time() {
 		return 0;
 	}
 }
+// -----
 
 class Node {
 public: 
 	Node();
 	Node(vector<vector<int>> state, int size);
-	//Node(Node* prev, Node* ex1, Node* ex2, int state[][], int size);
-	//Node(Node* prev, Node* ex1, Node* ex2, Node* ex3, int  state[][], int size);
-	//Node(Node* prev, Node* ex1, Node* ex2, Node* ex3, Node* ex4, int state[][], int size);
 	Node* prev;
 	Node* ex1;
 	Node* ex2;
@@ -63,6 +61,7 @@ void queuefxn(Node &n, int choice, map<vector<vector<int>>, int> &map);
 Node generalSearch(Node &n, int choice);
 void sortN();
 void assignCost(int choice, vector<vector<int>> goal);
+// ----- UNORIGINAL CODE USED TO COMPARE AND SORT THE QUEUE FROM: https://stackoverflow.com/questions/5174115/sorting-a-vector-of-objects-by-a-property-of-the-object
 bool comparator(const Node& lhs, const Node& rhs) {
 	if (lhs.cost == rhs.cost) {
 		return lhs.d < rhs.d;
@@ -70,7 +69,6 @@ bool comparator(const Node& lhs, const Node& rhs) {
 
 	return lhs.cost < rhs.cost;
 }
-
 
 int main() {
 	
@@ -96,253 +94,16 @@ int main() {
 	cout << "Enter your choice of algorithm\n\t1. Uniform Cost Search\n\t2. A* with the Misplaced Tile heuristic.\n\t3. A* with the Manhattan distance heuristic." << endl;
 	cin >> choice;
 
-	
-
-
-
-	cout << "-------------before node print------------------" << endl;
-
-	test.print();
-
-	cout << "-------------after node print------------------" << endl;
-	
-	cout << "-------------before index print------------------" << endl;
-
-	vector<int> newtest = findInd(test.state, 2);
-	cout << "(" << newtest.at(0) << ", " << newtest.at(1) << ")" << endl;
-
-	cout << "-------------after index print------------------" << endl;
-
-	deque<Node> q;
-	q.push_back(test);
-
-	/*
-	cout << "-------------before test expand-----------------" << endl;
-	q = test.expand(q);
-	cout << "-------------after test expand------------------" << endl;
-	cout << endl << "State move up" << endl;
-	test.ex1->print();
-	//cout << endl << "State move down" << endl;
-	//test.ex2->print();
-	cout << endl << "State move left" << endl;
-	test.ex3->print();
-	//cout << endl << "State move right" << endl;
-	//test.ex4->print();
-
-	cout << "-------------checking queue-----------------" << endl;
-
-	cout << endl << "OG State" << endl;
-	q.at(0).print();
-	cout << endl << "State move up" << endl;
-	q.at(1).print();
-	//cout << endl << "State move down" << endl;
-	//q.at(2).print();
-	cout << endl << "State move left" << endl;
-	q.at(2).print();
-	//cout << endl << "State move right" << endl;
-	//q.at(4).print();
-
-	cout << "-------------end of queue checking-----------------" << endl;
-	*/
-	cout << "-------------testing dynamic goal-----------------" << endl;
-
-	int goalNSize = 0;
-	
-	cout << "Please enter in the size of puzzle" << endl;
-	cin >> goalNSize;
-
-	vector<vector<int>> goalState;							// Creating a dynamic goal state based on problem state size
-	vector<int> blank;
-	for (int i = 0; i < goalNSize; i++) {
-		goalState.push_back(blank);
-		for (int j = 0; j < goalNSize; j++) {
-			goalState.at(i).push_back(j + i * goalNSize + 1);
-		}
-	}
-	goalState[goalNSize - 1][goalNSize - 1] = 0;
-
-	Node goalNode(goalState, goalNSize);
-	goalNode.print();
-	cout << "-------------dynamic goal test finished------------------" << endl;
-
-	cout << "-------------testing state comparison---------------------" << endl;
-
-	vector<vector<int>> randstate1 = {	{2,3,4},
-										{5,6,7},
-										{1,8,0} };
-	vector<vector<int>> randstate2 = {	{3,4,1},
-										{5,2,6},
-										{7,8,0} };
-	vector<vector<int>> randstate3 = {  {2,3,4},
-										{5,6,7},
-										{1,8,0} };
-
-	Node comp1(randstate1, 3);
-	Node comp2(randstate2, 3);
-	Node comp3(randstate3, 3);
-
-	cout << "comp1 == comp1: ";
-
-	if (comp1.state == comp1.state) {								// should print true
-		cout << "true";
-	}
-	else {
-		cout << "false";
-	}
-	cout << endl;
-	cout << "comp1 == comp2: ";
-
-	if (comp1.state == comp2.state) {								// should print false
-		cout << "true" << endl;
-	}
-	else {
-		cout << "false";
-	}
-	cout << endl;
-	cout << "comp2 == comp2: ";
-
-	if (comp2.state == comp2.state) {								// should print true
-		cout << "true";
-	}
-	else {
-		cout << "false";
-	}
-	cout << endl;
-
-	cout << "comp1 == comp3: ";										// should print true
-	if (comp1.state == comp3.state) {
-		cout << "true";
-	}
-	else {
-		cout << "false";
-	}
-	cout << endl;
-
-	cout << "-------------state comparison test finished---------------------" << endl;
-	
-	cout << "-------------testing general search---------------------" << endl;
-	
-
 	double begintimer = get_cpu_time();
-
-	
-	
 	Node sol = generalSearch(test, choice);
-	sol.print();
-	cout << "depth: " << sol.d << endl;
-
-
 	double endtimer = get_cpu_time();
 	double elapsedtimer = (endtimer - begintimer);
 
-	cout << "begin: " << begintimer << endl;
-	cout << "end: " << endtimer << endl;
-
-	printf("Time measured: %3f seconds.\n", elapsedtimer);
-
-	cout << "-------------general search test finished---------------------" << endl;
-	
-	
-	cout << "----------------Testing maps---------------------" << endl;
-
-	map<vector<vector<int>>, int> m;
-	if (m.find(deflt) == m.end()) {
-		cout << "not found" << endl;
-		m.insert(pair<vector<vector<int>>, int>(deflt, 1));
-	}
-	else {
-		cout << "value: " << m.find(deflt)->second << endl;
-	}
-	if (m.find(randstate1) == m.end()) {
-		cout << "not found" << endl;
-		m.insert(pair<vector<vector<int>>, int>(randstate1, 1));
-	}
-	else {
-		cout << "value: " << m.find(randstate1)->second << endl;
-	}
-	if (m.find(randstate2) == m.end()) {
-		cout << "not found" << endl;
-		m.insert(pair<vector<vector<int>>, int>(randstate2, 1));
-	}
-	else {
-		cout << "value: " << m.find(randstate2)->second << endl;
-	}
-	if (m.find(deflt) == m.end()) {
-		cout << "not found" << endl;
-		m.insert(pair<vector<vector<int>>, int>(deflt, 1));
-	}
-	else {
-		cout << "value: " << m.find(deflt)->second << endl;
-	}
-	if (m.find(randstate1) == m.end()) {
-		cout << "not found" << endl;
-		m.insert(pair<vector<vector<int>>, int>(randstate1, 1));
-	}
-	else {
-		cout << "value: " << m.find(randstate1)->second << endl;
-	}
-	if (m.find(randstate2) == m.end()) {
-		cout << "not found" << endl;
-		m.insert(pair<vector<vector<int>>, int>(randstate2, 1));
-	}
-	else {
-		cout << "value: " << m.find(randstate2)->second << endl;
-	}
-
-	Node* yup = new Node({ {1} }, 1);
-	for (auto it = m.cbegin(); it != m.cend(); ++it) {
-		yup = new Node(it->first, 3);
-		yup->print();
-		cout << endl;
-	}
-
-
-	cout << "-------------Finished testing maps---------------------" << endl;
-
-	/*cout << "-------------Testing Heuristics---------------------" << endl;
-
-	int misheurcost = 0;
-	int manheurcost = 0;
-	misheurcost = misHeur(test.state, goalNode.state, test.d);
-	manheurcost = manHeur(test.state, goalNode.state, test.d);
-
-	cout << "misHeur cost: " << misheurcost << endl;
-	cout << "manHeur cost: " << manheurcost << endl;
-
-	cout << "-------------Finished Heuristic test---------------------" << endl;*/
-	/*cout << "-------------Print solution steps---------------------" << endl;
-	
-	Node waffle = sol;
-	
-	sol.print();
-	cout << "size of head: " << sol.prev->state.size() << endl;
-	cout << "depth: " << sol.d << endl;
-	cout << "depth of head: " << sol.prev->d << endl;
-
-	/*
-	while (waffle.prev != NULL) {
-		waffle.print();
-		waffle = *waffle.prev;
-	}
-	*/
-	//cout << "-------------Finished printing---------------------" << endl;
+	cout << "\nGoal State Found!\n";
 
 	printf("Time measured: %3f seconds.\n", elapsedtimer);
 	cout << "Nodes Expanded: " << nodesExpanded << endl;
 	cout << "Max Queue Size: " << maxQSize << endl;
-	//cout << "test node state: " << test.ex1->d;
-
-	Node* asdf = &test;
-	Node qwer(randstate3, randstate3.size());
-	asdf->ex1 = &q.front();
-	asdf->print();
-	cout << endl;
-	asdf->ex1->print();
-
-
-
-
-
 }
 
 Node::Node() {
@@ -354,6 +115,7 @@ Node::Node() {
 	this->state = { {} };
 	sz = 0;
 	d = 0;
+	cost = 0;
 }
 
 Node::Node(vector<vector<int>> state, int size) {
@@ -365,44 +127,10 @@ Node::Node(vector<vector<int>> state, int size) {
 	this->state = state;
 	sz = size;
 	d = 0;
+	cost = 0;
 };
 
-/*
-Node::Node(Node* prev, Node* ex1, Node* ex2, int state[][], int size) {
-	this->prev = prev;
-	this->ex1 = ex1;
-	this->ex2 = ex2;
-	this->ex3 = NULL;
-	this->ex4 = NULL;
-	this->state = new int[size][size];
-	this->state = state;
-	sz = size;
-}
-
-Node::Node(Node* prev, Node* ex1, Node* ex2, Node* ex3, int state[][], int size) {
-	this->prev = prev;
-	this->ex1 = ex1;
-	this->ex2 = ex2;
-	this->ex3 = ex3;
-	this->ex4 = NULL;
-	this->state = new int[size][size];
-	this->state = state;
-	sz = size;
-}
-
-Node::Node(Node* prev, Node* ex1, Node* ex2, Node* ex3, Node* ex4, int state[][], int size) {
-	this->prev = prev;
-	this->ex1 = ex1;
-	this->ex2 = ex2;
-	this->ex3 = ex3;
-	this->ex4 = ex4;
-	this->state = new int[size][size];
-	this->state = state;
-	sz = size;
-}
-*/
-
-Node customInp() {
+Node customInp() {											// Function to get a custom puzzle state
 	string str;
 	vector<int> blank;
 	vector<vector<int>> inpState;
@@ -418,7 +146,6 @@ Node customInp() {
 		inpState.push_back(blank);
 		for (int j = 0; j < 3; j++) {
 			ss >> temp;
-//			cout << " temp: " << temp << endl;
 			inpState.at(i).push_back(stoi(temp));
 		}
 	}
@@ -450,15 +177,9 @@ void Node::expand(Node &n, map<vector<vector<int>>, int> &map) {
 		n.ex1->d = this->d + 1;
 
 		if (map.find(tempState) == map.end()) {				// not found in dictionary
-//			cout << "up: size before: " << map.size() << endl;
 			map.insert(pair<vector<vector<int>>, int>(tempState, 1));
-//			cout << "up: size after: " << map.size() << endl;
 			queue.push_back(*this->ex1);
-//			cout << "up: new state found!" << endl;
 			nodesExpanded++;
-		}
-		else {
-//			cout << "up: this is already inside the dict" << endl;
 		}
 	}
 	if (x + 1 < sz) {										// check if down is valid
@@ -470,15 +191,9 @@ void Node::expand(Node &n, map<vector<vector<int>>, int> &map) {
 		this->ex2->d = this->d + 1;
 
 		if (map.find(tempState) == map.end()) {				// not found in dictionary
-//			cout << "down: size before: " << map.size() << endl;
 			map.insert(pair<vector<vector<int>>, int>(tempState, 1));
-//			cout << "down: size after: " << map.size() << endl;
 			queue.push_back(*this->ex2);
-//			cout << "down: new state found!" << endl;
 			nodesExpanded++;
-		}
-		else {
-//			cout << "down: this is already inside the dict" << endl;
 		}
 	}
 	if (y - 1 >= 0) {										// check if left is valid
@@ -490,15 +205,9 @@ void Node::expand(Node &n, map<vector<vector<int>>, int> &map) {
 		this->ex3->d = this->d + 1;
 
 		if (map.find(tempState) == map.end()) {				// not found in dictionary
-//			cout << "left: size before: " << map.size() << endl; 
 			map.insert(pair<vector<vector<int>>, int>(tempState, 1));
-//			cout << "left: size after: " << map.size() << endl;
 			queue.push_back(*this->ex3);
-//			cout << "left: new state found!" << endl;
 			nodesExpanded++;
-		}
-		else {
-//			cout << "left: this is already inside the dict" << endl;
 		}
 	}
 	if (y + 1 < sz) {										// check if right is valid
@@ -510,15 +219,9 @@ void Node::expand(Node &n, map<vector<vector<int>>, int> &map) {
 		this->ex4->d = this->d + 1;
 
 		if (map.find(tempState) == map.end()) {				// not found in dictionary
-//			cout << "right: size before: " << map.size() << endl; 
 			map.insert(pair<vector<vector<int>>, int>(tempState, 1));
-//			cout << "right: size after: " << map.size() << endl;
 			queue.push_back(*this->ex4);
-//			cout << "right: new state found!" << endl;
 			nodesExpanded++;
-		}
-		else {
-//			cout << "right: this is already inside the dict" << endl;
 		}
 	}
 
@@ -540,35 +243,38 @@ vector<vector<int>> goalStateGen(int size) {
 	goalState[size - 1][size - 1] = 0;
 
 	Node goalNode(goalState, size);
-	//goalNode.print();
 
 	return goalState;
 }
-// (1, 3) (3, 2)
+
 Node generalSearch(Node &n, int choice) {
 	map<vector<vector<int>>, int> map;
-																		// max size queue; how many nodes were expanded
 	queue.push_back(n);
 	int depth = 0;
-
 	vector<vector<int>> goalState = goalStateGen(n.state.size());		// Creating a dynamic goal state based on problem state size
 	vector<vector<int>> errState = { {-1} };
 	n.d = depth;
-
 	Node temp = n;
 	Node error(errState, 1);
-
 	map.insert(pair<vector<vector<int>>,int>(temp.state, temp.d));
+	int printOut = 0;
+	
+	// Pseudocode starts here
 
 	while (1) {
 		if (queue.empty()) {
 			return error;
 		}
-//		queue.front().print();
-//		cout << endl;
+		if (printOut < 3) {
+			cout << "The best state to expand with a g(n) = " << queue.front().d << " and h(n) = " << queue.front().cost - queue.front().d << " is..." << endl;
+			queue.front().print();
+			cout << "\t\t\tExpanding this node..." << endl;
+			printOut++;
+		}
+
 		temp = queue.front();
 		queue.pop_front();
-		cout << temp.cost - temp.d << " " << temp.d << endl;
+
 		if (temp.state == goalState) {
 			
 			return temp;
@@ -576,80 +282,20 @@ Node generalSearch(Node &n, int choice) {
 		queuefxn(temp, choice, map);
 		assignCost(choice, goalState);
 		sortN();
-		/*
-		cout << "head node: " << endl;
-		n.print();
-		if (n.ex1 != NULL) {
-			cout << "child ex1 node: " << endl;
-			n.ex1->print();
-		}
-		if (n.ex2 != NULL) {
-			cout << "child ex2 node: " << endl;
-			n.ex2->print();
-		}
-		if (n.ex3 != NULL) {
-			cout << "child ex3 node: " << endl;
-			n.ex3->print();
-		}
-		if (n.ex4 != NULL) {
-			cout << "child ex4 node: " << endl;
-			n.ex4->print();
-		}
-		
-		for (int j = 0; j < queue.size(); j++) {
-			cout << j << ": " << queue.at(j).cost << endl;
-		}*/
-
-
 	}
 }
 
 void queuefxn(Node &n, int choice, map<vector<vector<int>> , int> &map) {			// proxy function to queue children
 	n.expand(n, map);
 	
-	/*for (int j = 0; j < queue.size(); j++) {
-		cout << "...." << endl;
-		queue.at(j).print();
-		cout << endl;
-		queue.at(j).prev->print();
-		cout << "...." << endl;
-	}
-	
-	for (int i = 0; i < queue.size(); i++) {
-		cout << "====\n";
-		cout << i << ": " << endl;
-		queue.at(i).print();
-		cout << endl;
-		cout << "====\n";
-	}
-	/*Node* temp = new Node({ {1} }, 1);
-	for (auto it = map.cbegin(); it != map.cend(); ++it) {
-		temp = new Node(it->first, 3);
-		temp->print();
-		cout << endl;
-	}
-	
-	cout << "0000000000000\n0000000000000\n0000000000000\n" << endl;
-	for (int l = 0; l < queue.size(); l++) {
-		cout << "`````````" << endl;
-		queue.at(l).print();
-		cout << "`````````" << endl;
-	}*/
-
 	if (maxQSize < queue.size()) {
 		maxQSize = queue.size();
 	}
-	
-	
 
 	return;
 }
 
-//bool isDupe(Node n, map<int, Node> map) {
-//	map.find(n);
-//}
-
-vector<int> findInd(vector<vector<int>> state, int num) {
+vector<int> findInd(vector<vector<int>> state, int num) {							// Unused Function because it increases run time
 	vector<int> index;
 	for (int i = 0; i < state.size(); i++) {
 		for (int j = 0; j < state.size(); j++) {
@@ -667,14 +313,13 @@ vector<int> findInd(vector<vector<int>> state, int num) {
 	return index;
 }
 
-int misHeur(vector<vector<int>> state, vector<vector<int>> goal, int depth) {
+int misHeur(vector<vector<int>> state, vector<vector<int>> goal, int depth) {		// Misplaced Tiles Heuristic Function to calculate the cost
 	int sum = 0;
 
 	for (int i = 0; i < state.size(); i++) {
 		for (int j = 0; j < state.size(); j++) {
 			if (state[i][j] != 0) {
 				if (state[i][j] != goal[i][j]) {
-//					cout << "element at (" << i << ", " << j << "): " << state[i][j] << endl;
 					sum++;
 				}
 			}
@@ -685,36 +330,32 @@ int misHeur(vector<vector<int>> state, vector<vector<int>> goal, int depth) {
 	return sum;
 }
 
-int manHeur(vector<vector<int>> state, vector<vector<int>> goal, int depth) {
+int manHeur(vector<vector<int>> state, vector<vector<int>> goal, int depth) {		// Manhattan Distance Heuristic Function to calculate the cost
 	int sum = 0;
-	vector<int> ind1;
-	vector<int> ind2;
 
-	int r = 0;
-	int c = 0;
-	int r1 = 0;
-	int c1 = 0;
+	int stateRow = 0;
+	int stateCol = 0;
+	int goalRow = 0;
+	int goalCol = 0;
 
-	for (unsigned k = 1; k < 9; k++) {
-		for (int i = 0; i < state.size(); i++) {
-			for (int j = 0; j < state.size(); j++) {
-				if (goal[i][j] == k) {
-					//				cout << "element state at (" << i << ", " << j << "): " << state[i][j] << endl;
-//					ind1 = findInd(state, goal[i][j]);
-					//				cout << "element index at (" << ind1.at(0) << ", " << ind1.at(1) << "): " << state[i][j] << endl;
+	int size = state.size();
 
-//					sum = sum + abs(ind1.at(0) - i);
-//					sum = sum + abs(ind1.at(1) - j);
-					r1 = i;
-					c1 = j;
-				}
+	for (unsigned k = 1; k < size * size; k++) {
+		for (int i = 0; i < size; i++) {
+			for (int j = 0; j < size; j++) {
 				if (state[i][j] == k) {
-					r = i;
-					c = j;
+					stateRow = i;
+					stateCol = j;
 				}
+				if (goal[i][j] == k) {
+
+					goalRow = i;
+					goalCol = j;
+				}
+				
 			}
 		}
-		sum += abs(r1 - r) + abs(c1 - c);
+		sum += abs(goalRow - stateRow) + abs(goalCol - stateCol);
 	}
 	
 	sum += depth;
@@ -722,20 +363,29 @@ int manHeur(vector<vector<int>> state, vector<vector<int>> goal, int depth) {
 	return sum;
 }
 
-void assignCost(int choice, vector<vector<int>> goal) {
+void assignCost(int choice, vector<vector<int>> goal) {									// Assigns Costs to the Nodes dependent on Heuristic chosen
+	if (choice == 1){
+		return;
+	}
 	if (choice == 2) {
 		for (int i = 0; i < queue.size(); i++) {
-			queue.at(i).cost = misHeur(queue.at(i).state, goal, queue.at(i).d);
+			if (queue.at(i).cost == 0) {
+				queue.at(i).cost = misHeur(queue.at(i).state, goal, queue.at(i).d);
+			}
+			
 		}
 	}
 	else if (choice == 3) {
 		for (int i = 0; i < queue.size(); i++) {
-			queue.at(i).cost = manHeur(queue.at(i).state, goal, queue.at(i).d);
+			if (queue.at(i).cost == 0) {
+				queue.at(i).cost = manHeur(queue.at(i).state, goal, queue.at(i).d);
+			}
 		}
 	}
+	return;
 }
 
-void sortN() {
+void sortN() {																			// Sort Function for the queue
 	int minInd = 0;
 	vector<vector<int>> blank;
 	Node temp(blank, blank.size());
@@ -745,7 +395,7 @@ void sortN() {
 	return;
 }
 
-void Node::print() {
+void Node::print() {																	// Print Function for the states
 	for (int i = 0; i < sz; i++) {
 		for (int j = 0; j < sz; j++) {
 			cout << this->state[i][j] << " ";

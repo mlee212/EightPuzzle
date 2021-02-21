@@ -1,11 +1,10 @@
 ﻿  main.cpp
-D:\Coding\CS170\EightPuzzle\main.cpp(639,15): warning C4018: '<': signed/unsigned mismatch
-D:\Coding\CS170\EightPuzzle\main.cpp(654,20): warning C4018: '<': signed/unsigned mismatch
-D:\Coding\CS170\EightPuzzle\main.cpp(655,21): warning C4018: '<': signed/unsigned mismatch
-D:\Coding\CS170\EightPuzzle\main.cpp(673,20): warning C4018: '<': signed/unsigned mismatch
-D:\Coding\CS170\EightPuzzle\main.cpp(674,21): warning C4018: '<': signed/unsigned mismatch
-D:\Coding\CS170\EightPuzzle\main.cpp(699,21): warning C4018: '<': signed/unsigned mismatch
-D:\Coding\CS170\EightPuzzle\main.cpp(700,22): warning C4018: '<': signed/unsigned mismatch
-D:\Coding\CS170\EightPuzzle\main.cpp(727,21): warning C4018: '<': signed/unsigned mismatch
-D:\Coding\CS170\EightPuzzle\main.cpp(732,21): warning C4018: '<': signed/unsigned mismatch
+D:\Coding\CS170\EightPuzzle\main.cpp(291,15): warning C4018: '<': signed/unsigned mismatch
+D:\Coding\CS170\EightPuzzle\main.cpp(300,20): warning C4018: '<': signed/unsigned mismatch
+D:\Coding\CS170\EightPuzzle\main.cpp(301,21): warning C4018: '<': signed/unsigned mismatch
+D:\Coding\CS170\EightPuzzle\main.cpp(319,20): warning C4018: '<': signed/unsigned mismatch
+D:\Coding\CS170\EightPuzzle\main.cpp(320,21): warning C4018: '<': signed/unsigned mismatch
+D:\Coding\CS170\EightPuzzle\main.cpp(343,25): warning C4018: '<': signed/unsigned mismatch
+D:\Coding\CS170\EightPuzzle\main.cpp(371,21): warning C4018: '<': signed/unsigned mismatch
+D:\Coding\CS170\EightPuzzle\main.cpp(379,21): warning C4018: '<': signed/unsigned mismatch
   EightPuzzle.vcxproj -> D:\Coding\CS170\EightPuzzle\EightPuzzle\Debug\EightPuzzle.exe
